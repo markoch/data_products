@@ -5,10 +5,7 @@ date: Jul. 27th 2014
 
 Introduction
 ========================================================
-- This analysis is about the events leading to traffic accidents in Germany. 
-
-Source data
-========================================================
+- This analysis is about events leading to traffic accidents in Germany. 
 - Traffic accident data 'Unfallbeteiligte: Deutschland, Jahre, Art der Verkehrsbeteiligung, Fehlverhalten der Fahrzeugführer und Fußgänger' has been downloaded from GENESIS-Online database
 - Link: https://www-genesis.destatis.de/genesis/online/link/tabellen/46241*
 -  (C)Statistisches Bundesamt , Wiesbaden 2014
@@ -61,8 +58,6 @@ Several interesting plots and queries can be performed on the data, e.g.
 [2] "Violate right of way"                         
 [3] "Other faults of driver"                       
 ```
-
-A Shiny IO application has been developed.
 
 Results
 ========================================================
