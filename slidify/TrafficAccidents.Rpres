@@ -1,0 +1,136 @@
+Traffic Accidents
+========================================================
+author: Marco Koch
+date: Jul. 27th 2014
+
+Introduction
+========================================================
+- This analysis is about the events leading to traffic accidents in Germany. 
+
+Source data
+========================================================
+- Traffic accident data 'Unfallbeteiligte: Deutschland, Jahre, Art der Verkehrsbeteiligung, Fehlverhalten der Fahrzeugführer und Fußgänger' has been downloaded from GENESIS-Online database
+- Link: https://www-genesis.destatis.de/genesis/online/link/tabellen/46241*
+-  (C)Statistisches Bundesamt , Wiesbaden 2014
+- Data downloaded: Jul. 20th, 2014
+
+Data Processing
+========================================================
+The following steps has been applied to the raw data:
+
+- Develop R function to read a specified section from the Excel source file and perform basic clean up
+- Read data for each vehicle type
+- Combine all information into one large data set
+- Translate vehicle types and events to English language
+```{r, eval=FALSE}
+data$EventType[data$EventType=="Nicht angepasste Geschwindigkeit"] <- "High speed"
+```
+
+Import from Excel
+========================================================
+The getData() function imports the data from Excel:
+```{r, eval=FALSE}
+getData <- function(startRow, endRow, name) {
+    # read from Excel
+    myData <- read.xlsx(fileSrc, 1, stringsAsFactors=F, startRow = startRow, endRow = endRow, colIndex=columnsToRead)
+    
+    # clean data
+    myData$Type <- name
+    myData <- myData[,c(8,1:7)]
+    myData[3:8][myData[3:8]=="-"] <- 0
+    names(myData) <- header
+    
+    #fix types (done for 2008-2013)
+    myData$"2008" <-as.numeric(myData$"2008")
+    
+    return(myData)
+}
+```
+
+Results
+========================================================
+Several interesting plots and queries can be performed on the data, e.g.
+- Plot all events related to the accidents
+- Top three passenger cars events causing an accident in 2013
+```{r, echo=FALSE}
+library(shiny)
+library(xlsx)
+library(gridExtra)
+library(reshape)
+library(ggplot2)
+setwd("~/DataScience/coursera/data_products/prj")
+
+fileSrc <- "data/46241-0009.xlsx"
+header <- c("Type", "EventType", 2008, 2009, 2010, 2011, 2012, 2013)
+years <- c(2008, 2009, 2010, 2011, 2012, 2013)
+columnsToRead <- c(2:8)
+
+getData <- function(startRow, endRow, name) {
+    #read from excel file
+    myData <- read.xlsx(fileSrc, 1, stringsAsFactors=F, startRow = startRow, endRow = endRow, colIndex=columnsToRead)
+    #clean up
+    myData$Type <- name
+    myData <- myData[,c(8,1:7)]
+    myData[3:8][myData[3:8]=="-"] <- 0
+    names(myData) <- header
+    #fix data types
+    myData$"2008" <-as.numeric(myData$"2008")
+    myData$"2009" <-as.numeric(myData$"2009")
+    myData$"2010" <-as.numeric(myData$"2010")
+    myData$"2011" <-as.numeric(myData$"2011")
+    myData$"2012" <-as.numeric(myData$"2012")
+    myData$"2013" <-as.numeric(myData$"2013")
+    
+    return(myData)
+}
+pkw.Data <- getData(45,64, "Passenger cars")                # PKW
+data <- rbind(pkw.Data)
+# translate events
+data$EventType[data$EventType=="Alkoholeinfluss"] <- "Drunk Driving"
+data$EventType[data$EventType=="Einfluss and. berausch. Mittel (z.B. Drogen u.Ä.)"] <- "Driving under the influence of drugs"
+data$EventType[data$EventType=="Übermüdung, sonstige körperliche/geistige Mängel"] <- "Fatigue / Other physical or mental impairments"
+data$EventType[data$EventType=="Falsche Straßenbenutzung"] <- "Wrong use of road"
+data$EventType[data$EventType=="Nicht angepasste Geschwindigkeit"] <- "High speed"
+data$EventType[data$EventType=="Abstandsfehler"] <- "Distance error"
+data$EventType[data$EventType=="Fehler beim Überholen/überholt werden"] <- "Overtaking error"
+data$EventType[data$EventType=="Fehler beim Vorbeifahren"] <- "Passing error"
+data$EventType[data$EventType=="Fehler beim Nebeneinanderfahren"] <- "Wrong side by side driving"
+data$EventType[data$EventType=="Missachtung der Vorfahrt, des Vorrangs"] <- "Violate right of way"
+data$EventType[data$EventType=="Fehler b.Abbiegen,Wenden,Rückwärtsf.,Ein-u.Anfahr."] <- "Wrong turn / Reversing error / Wrong start up"
+data$EventType[data$EventType=="Falsches Verhalten gegenüber Fußgängern"] <- "Misconduct to pedestrians"
+data$EventType[data$EventType=="Unzul. Halten/Parken, mangelnde Verkehrssicherung"] <- "Wrong parking"
+data$EventType[data$EventType=="Nichtbeachten der Beleuchtungsvorschriften"] <- "Inadequate lighting"
+data$EventType[data$EventType=="Überladung,-besetzung,unzureich. gesicherte Ladung"] <- "Overload"
+data$EventType[data$EventType=="Andere Fehler beim Fahrzeugführer"] <- "Other faults of driver"
+data$EventType[data$EventType=="Technische Mängel"] <- "Technical faults"
+data$EventType[data$EventType=="Falsches Verhalten d.Fußg. b.Überschr. d.Fahrbahn"] <- "Misconduct of pedestrians passing the road"
+data$EventType[data$EventType=="Sonstige Fehler der Fußgänger"] <- "Other faults of pedestrians"
+```
+```{r, echo=FALSE}
+top <- data[order(data$"2013",decreasing=TRUE),]
+head(top$EventType,n=3)
+```
+
+A Shiny IO application has been developed.
+
+Results
+========================================================
+The following sample plot shows all passenger cars events from 2008 until 2013.
+```{r, echo=FALSE, fig.align = 'center', fig.height=9, , fig.width=18}
+test <- subset(data, Type=="Passenger cars")
+t <- melt(test, id=c("Type","EventType"))
+names(t) <- c("Type","EventType","Year", "Accidents")
+
+g <- ggplot(t, aes(x=t$Year, y=t$Accidents, colour=t$EventType, group=t$EventType))
+g <- g + geom_point(size=3)
+g <- g + geom_line(size=1)
+g <- g + labs(title="Accidents Per Year")
+g <- g + ylab("Accidents")
+g <- g + xlab("Year")
+g
+```
+
+Shiny IO Application
+========================================================
+<p><img src="ShinyIOScreen.png" alt="Screen"></p>
+<a href="http://marco.shinyapps.io/traffic">http://marco.shinyapps.io/traffic</a>

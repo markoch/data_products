@@ -42,7 +42,7 @@ lpkw.Data <- getData(64,83, "Buses")                        # Kraftomnibus
 lkw.Data <- getData(83,102, "Trucks")                       # Güterkraftfahrzeug
 land.Data <- getData(102, 121, "Agricultural tractors")     # Landwirtschaftliche Zugmaschine
 otherCars.Data <- getData(121, 140, "Other cars")           # Übrige Kraftfahrzeuge
-bicycle.Data <- getData(140, 159, "Bicycles")                # Fahrrad
+bicycle.Data <- getData(140, 159, "Bicycles")               # Fahrrad
 other.Data <- getData(159, 178, "Other/Unknown")            # Andere Fahrzeuge
 pedestrian.Data <- getData(178, 197, "Pedestrians")         # Fußgänger
 people.Data <- getData(197, 217, "Other people")            # Andere Personen
