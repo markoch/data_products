@@ -1,0 +1,182 @@
+---
+title: "Traffic Accidents In Germany"
+author: "Marco Koch"
+date: "20.07.2014"
+output: html_document
+---
+
+This is a traffic accident type report. t.b.d.
+
+```{r, echo=FALSE, results='hide'}
+library(shiny)
+library(xlsx)
+library(gridExtra)
+library(reshape)
+library(ggplot2)
+setwd("~/DataScience/coursera/data_products/prj")
+
+fileSrc <- "data/46241-0009.xlsx"
+header <- c("Type", "EventType", 2008, 2009, 2010, 2011, 2012, 2013)
+years <- c(2008, 2009, 2010, 2011, 2012, 2013)
+columnsToRead <- c(2:8)
+
+getData <- function(startRow, endRow, name) {
+    # read from Excel
+    myData <- read.xlsx(fileSrc, 1, stringsAsFactors=F, startRow = startRow, endRow = endRow, colIndex=columnsToRead)
+    
+    # clean data
+    myData$Type <- name
+    myData <- myData[,c(8,1:7)]
+    myData[3:8][myData[3:8]=="-"] <- 0
+    names(myData) <- header
+    
+    #fix types
+    myData$"2008" <-as.numeric(myData$"2008")
+    myData$"2009" <-as.numeric(myData$"2009")
+    myData$"2010" <-as.numeric(myData$"2010")
+    myData$"2011" <-as.numeric(myData$"2011")
+    myData$"2012" <-as.numeric(myData$"2012")
+    myData$"2013" <-as.numeric(myData$"2013")
+    
+    return(myData)
+}
+
+#Cause
+startRow <- 7
+endRow <- 26
+cause.Data <- read.xlsx(fileSrc, 1, stringsAsFactors=F, startRow = startRow, endRow = endRow, colIndex=2)
+names(cause.Data) <- "EventType"
+
+mofa.Data <- getData(7,26,"Mopeds")                         # Mofa
+motorcycle.Data <- getData(26,45, "Motorcycles")            # Motorrad
+pkw.Data <- getData(45,64, "Passenger cars")                # PKW
+lpkw.Data <- getData(64,83, "Buses")                        # Kraftomnibus
+lkw.Data <- getData(83,102, "Trucks")                       # Güterkraftfahrzeug
+land.Data <- getData(102, 121, "Agricultural tractors")     # Landwirtschaftliche Zugmaschine
+otherCars.Data <- getData(121, 140, "Other cars")           # Übrige Kraftfahrzeuge
+bicycle.Data <- getData(140, 159, "Bicycles")                # Fahrrad
+other.Data <- getData(159, 178, "Other/Unknown")            # Andere Fahrzeuge
+pedestrian.Data <- getData(178, 197, "Pedestrians")         # Fußgänger
+people.Data <- getData(197, 217, "Other people")            # Andere Personen
+
+#full data set
+data <- rbind(
+    mofa.Data, motorcycle.Data, pkw.Data, lpkw.Data, lkw.Data, land.Data, 
+    otherCars.Data, bicycle.Data, other.Data, pedestrian.Data, people.Data)
+
+data$EventType[data$EventType=="Alkoholeinfluss"] <- "Drunk Driving"
+data$EventType[data$EventType=="Einfluss and. berausch. Mittel (z.B. Drogen u.Ä.)"] <- "Driving under the influence of drugs"
+data$EventType[data$EventType=="Übermüdung, sonstige körperliche/geistige Mängel"] <- "Fatigue / Other physical or mental impairments"
+data$EventType[data$EventType=="Falsche Straßenbenutzung"] <- "Wrong use of road"
+data$EventType[data$EventType=="Nicht angepasste Geschwindigkeit"] <- "High speed"
+data$EventType[data$EventType=="Abstandsfehler"] <- "Distance error"
+data$EventType[data$EventType=="Fehler beim Überholen/überholt werden"] <- "Overtaking error"
+data$EventType[data$EventType=="Fehler beim Vorbeifahren"] <- "Passing error"
+data$EventType[data$EventType=="Fehler beim Nebeneinanderfahren"] <- "Wrong side by side driving"
+data$EventType[data$EventType=="Missachtung der Vorfahrt, des Vorrangs"] <- "Violate right of way"
+data$EventType[data$EventType=="Fehler b.Abbiegen,Wenden,Rückwärtsf.,Ein-u.Anfahr."] <- "Wrong turn / Reversing error / Wrong start up"
+data$EventType[data$EventType=="Falsches Verhalten gegenüber Fußgängern"] <- "Misconduct to pedestrians"
+data$EventType[data$EventType=="Unzul. Halten/Parken, mangelnde Verkehrssicherung"] <- "Wrong parking"
+data$EventType[data$EventType=="Nichtbeachten der Beleuchtungsvorschriften"] <- "Inadequate lighting"
+data$EventType[data$EventType=="Überladung,-besetzung,unzureich. gesicherte Ladung"] <- "Overload"
+data$EventType[data$EventType=="Andere Fehler beim Fahrzeugführer"] <- "Other faults of driver"
+data$EventType[data$EventType=="Technische Mängel"] <- "Technical faults"
+data$EventType[data$EventType=="Falsches Verhalten d.Fußg. b.Überschr. d.Fahrbahn"] <- "Misconduct of pedestrians passing the road"
+data$EventType[data$EventType=="Sonstige Fehler der Fußgänger"] <- "Other faults of pedestrians"
+
+summary(data)
+data$"2008" <-as.numeric(data$"2008")
+data$"2009" <-as.numeric(data$"2009")
+data$"2010" <-as.numeric(data$"2010")
+data$"2011" <-as.numeric(data$"2011")
+data$"2012" <-as.numeric(data$"2012")
+data$"2013" <-as.numeric(data$"2013")
+
+type <- sort(unique(data$Type))
+```
+
+##Types
+```{r, echo=FALSE}
+type
+```
+
+##Event types (in German)
+This is a list of event types
+```{r, echo=FALSE}
+cause.Data
+```
+
+##Event types (in English)
+This is a list of event types
+```{r, echo=FALSE}
+unique(data$EventType)
+```
+##Most dangerous in year 2013
+```{r, echo=FALSE}
+danger <- data[which.max(data$"2013"),]
+danger$Type
+danger$EventType
+```
+
+##Top 3 event types
+```{r, echo=FALSE}
+top <- data[order(data$"2013",decreasing=TRUE),]
+head(top,n=3)
+```
+
+##Sample graph
+```{r, echo=FALSE}
+test <- data[which.max(data$"2013"),]
+graph.data<-data.frame(c(test$"2008",test$"2009",test$"2010",test$"2011",test$"2012",test$"2013"))
+graph.data$Year <- years
+names(graph.data) <- c("Accidents","Year")
+
+barplot(graph.data$Accidents)
+g <- ggplot(graph.data, aes(x=graph.data$Year, y=graph.data$Accidents))
+g <- g + geom_point(size=3)
+g <- g + geom_line(size=1)
+g <- g + labs(title=test$EventType)
+g <- g + ylab("Accidents")
+g <- g + xlab("Year")
+g
+```
+
+## Sample Query
+```{r, echo=FALSE}
+test <- subset(data, Type=="Mopeds")
+test <- subset(test, EventType=="Passing error")
+
+graph.data<-data.frame(c(test$"2008",test$"2009",test$"2010",test$"2011",test$"2012",test$"2013"))
+graph.data$Year <- years
+names(graph.data) <- c("Accidents","Year")
+
+barplot(graph.data$Accidents)
+g <- ggplot(graph.data, aes(x=graph.data$Year, y=graph.data$Accidents))
+g <- g + geom_point(size=3)
+g <- g + geom_line(size=1)
+g <- g + labs(title=test$EventType)
+g <- g + ylab("Accidents")
+g <- g + xlab("Year")
+g
+```
+
+## Sample Query All
+```{r, echo=FALSE}
+test <- subset(data, Type=="Bicycles")
+t <- melt(test, id=c("Type","EventType"))
+names(t) <- c("Type","EventType","Year", "Accidents")
+
+g <- ggplot(t, aes(x=t$Year, y=t$Accidents, colour=t$EventType, group=t$EventType))
+g <- g + geom_point(size=3)
+g <- g + geom_line(size=1)
+g <- g + labs(title="Accidents Per Year")
+g <- g + ylab("Accidents")
+g <- g + xlab("Year")
+g
+```
+
+
+### Session Info
+```{r, echo=FALSE}
+sessionInfo()
+```
