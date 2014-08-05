@@ -80,7 +80,6 @@ shinyServer(
                 graphDataNew$Type <- NULL
                 graphDataNew <- melt(graphDataNew, id=c("EventType"))
                 names(graphDataNew) <- c("EventType","Year", "Accidents")
-                
                 p1 <- ggplot(graphDataNew, aes(x=Year, y=Accidents, colour=EventType, group=EventType)) + geom_point(size=3) + geom_line(size=1) + labs(title=paste(input$type,"Accidents Per Year")) + ylab("Accidents") + xlab("Year")
                 print(p1)
             } else {

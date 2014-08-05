@@ -24,28 +24,6 @@ The following steps has been applied to the raw data:
 data$EventType[data$EventType=="Nicht angepasste Geschwindigkeit"] <- "High speed"
 ```
 
-Import from Excel
-========================================================
-The getData() function imports the data from Excel:
-
-```r
-getData <- function(startRow, endRow, name) {
-    # read from Excel
-    myData <- read.xlsx(fileSrc, 1, stringsAsFactors=F, startRow = startRow, endRow = endRow, colIndex=columnsToRead)
-    
-    # clean data
-    myData$Type <- name
-    myData <- myData[,c(8,1:7)]
-    myData[3:8][myData[3:8]=="-"] <- 0
-    names(myData) <- header
-    
-    #fix types (done for 2008-2013)
-    myData$"2008" <-as.numeric(myData$"2008")
-    
-    return(myData)
-}
-```
-
 Results
 ========================================================
 Several interesting plots and queries can be performed on the data, e.g.
@@ -62,7 +40,7 @@ Several interesting plots and queries can be performed on the data, e.g.
 Results
 ========================================================
 The following sample plot shows all passenger cars events from 2008 until 2013.
-<img src="TrafficAccidents-figure/unnamed-chunk-5.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" />
+<img src="TrafficAccidents-figure/unnamed-chunk-4.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
 
 Shiny IO Application
 ========================================================

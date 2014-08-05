@@ -173,3 +173,7 @@ names(graphDataNew) <- c("EventType","Year", "Accidents")
 p1 <- ggplot(graphDataNew, aes(x=graphDataNew$Year, y=graphDataNew$Accidents, colour=graphDataNew$EventType, group=graphDataNew$EventType)) + geom_point(size=3) + geom_line(size=1) + labs(title=paste("XXX","Accidents Per Year")) + ylab("Accidents") + xlab("Year")
 p1
 
+library(rCharts)
+m1<-mPlot(data = graphData, x=graphData$Year, y=graphData$Accidents, type="Line")
+m1$set(pointSize = 0, lineWidth = 1)
+m1$print("chart2")

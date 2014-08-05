@@ -1,8 +1,9 @@
 library(shiny)
 library(xlsx)
 
-shinyUI(fluidPage(theme = "bootstrap.css",
-    fluidRow(headerPanel("Traffic Accidents in Germany")),
+shinyUI(navbarPage("Traffic Accidents in Germany",
+   tabPanel("Plot",
+   fluidPage(theme = "bootstrap.css",
     fluidRow(
         column(3,
                selectInput("type", "Vehicle:", selected = "Passenger cars",
@@ -50,23 +51,13 @@ shinyUI(fluidPage(theme = "bootstrap.css",
     fluidRow(
         tabsetPanel(
             tabPanel("Graph", plotOutput("graphPlot")),
-            tabPanel("Data", dataTableOutput("table")),
-            tabPanel("Help", 
-                     h4("Project"), 
-                     p("This project has been developed as part of ", 
-                       a(href="https://www.coursera.org/course/devdataprod","Developing Data Products"), "class. ",
-                     "More information about the project can be found at:",  
-                       a(href="http://rpubs.com/MarcoRPubs/23938","http://rpubs.com/MarcoRPubs/23938")
-                     ),
-                     h4("Data Source"), p(
-                "Download the traffic accident data 'Unfallbeteiligte: Deutschland, Jahre, Art der Verkehrsbeteiligung, 
-Fehlverhalten der Fahrzeugführer und Fußgänger' (only available in German) from the 
-GENESIS-Online database."),
-                p(a(href="https://www-genesis.destatis.de/genesis/online/link/tabellen/46241*",
-                    "https://www-genesis.destatis.de/genesis/online/link/tabellen/46241*")),
-            p("(C)opyright ",a(href="https://www.destatis.de/EN/Homepage.html","Statistisches Bundesamt"),
-              ", Wiesbaden 2014"), 
-            p("Data downloaded: Jul. 20th, 2014")
-        )
+            tabPanel("Data", dataTableOutput("table"))
     )
-)))
+    ))),
+    tabPanel("About",
+             mainPanel(
+                 includeMarkdown("about.md")
+             )
+    )
+    
+))
