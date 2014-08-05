@@ -165,7 +165,7 @@ names(graphData) <- c("EventType","Year", "Accidents")
 
 ggplot(graphData, aes(x=graphData$Year, y=graphData$Accidents, colour=graphData$EventType, group=graphData$EventType)) + geom_point(size=3) + geom_line(size=1) + labs(title="Accidents Per Year") + ylab("Accidents") + xlab("Year")
 
-graphDataNew <- subset(data, data$Type=="Car")
+graphDataNew <- subset(data, data$Type=="Bicycles")
 graphDataNew$Type <- NULL
 graphDataNew <- melt(graphDataNew, id=c("EventType"))
 names(graphDataNew) <- c("EventType","Year", "Accidents")
@@ -174,6 +174,15 @@ p1 <- ggplot(graphDataNew, aes(x=graphDataNew$Year, y=graphDataNew$Accidents, co
 p1
 
 library(rCharts)
-m1<-mPlot(data = graphData, x=graphData$Year, y=graphData$Accidents, type="Line")
+options(RCHART_WIDTH = 800)
+m1 <- rPlot(data = graphDataNew, x="Year", y="Accidents", type="Line", color="EventType")
 m1$set(pointSize = 0, lineWidth = 1)
-m1$print("chart2")
+m1$print()
+m1
+
+library(rCharts)
+names(iris) = gsub("\\.", "", names(iris))
+r1 <- rPlot(SepalLength ~ SepalWidth | Species, data = iris, color = 'Species',
+            type = 'point')
+r1$show(cdn = TRUE)
+

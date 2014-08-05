@@ -1,5 +1,8 @@
 library(shiny)
 library(xlsx)
+library(rCharts)
+options(RCHART_WIDTH = 800)
+
 
 shinyUI(navbarPage("Traffic Accidents in Germany",
    tabPanel("Plot",
@@ -51,7 +54,8 @@ shinyUI(navbarPage("Traffic Accidents in Germany",
     fluidRow(
         tabsetPanel(
             tabPanel("Graph", plotOutput("graphPlot")),
-            tabPanel("Data", dataTableOutput("table"))
+            tabPanel("Data", dataTableOutput("table")),
+            tabPanel("Test Interactive Chart", showOutput("jsPlot", "nvd3"))
     )
     ))),
     tabPanel("About",

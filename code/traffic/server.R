@@ -4,6 +4,8 @@ library(gridExtra)
 library(reshape)
 library(markdown)
 library(ggplot2)
+library(rCharts)
+options(RCHART_WIDTH = 800)
 
 fileSrc <- "46241-0009.xlsx"
 header <- c("Type", "EventType", 2008, 2009, 2010, 2011, 2012, 2013)
@@ -102,6 +104,30 @@ shinyServer(
                     print(grid.arrange(p1))
                 }
             }
+        })
+        
+        output$jsPlot <- renderChart({
+            test <- subset(data, Type==input$type)
+            summary <- colSums(test[,c(3:8)])
+            test <- subset(test, EventType==input$event)
+            
+            graphdata<-data.frame(c(test$"2008",test$"2009",test$"2010",test$"2011",test$"2012",test$"2013"))
+            graphdata$Year <- years
+            graphdata$Total <- summary
+            graphdata <- graphdata[,c(2,1,3)]
+            names(graphdata) <- c("Year", "Accidents", "Total")
+            p1 <- nPlot(Accidents~Year, data = graphdata, type = "lineChart")
+            p1$addParams(dom = 'jsPlot', title = "ASD")
+            p1$params$width = 600
+            p1$params$height = 400
+            p1$params$xAxis = "Year"
+            p1$params$yAxis = "Accidents"
+            
+            #p1$chart(tooltipContent = "#! function(key, x, y, e){
+            #    return '<b>Group</b>: ' + e.point.grpvar
+            #} !#")
+            
+            p1
         })
         
         output$table <- renderDataTable({
