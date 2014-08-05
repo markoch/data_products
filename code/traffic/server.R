@@ -2,6 +2,7 @@ library(shiny)
 library(xlsx)
 library(gridExtra)
 library(reshape)
+library(markdown)
 library(ggplot2)
 
 fileSrc <- "46241-0009.xlsx"
